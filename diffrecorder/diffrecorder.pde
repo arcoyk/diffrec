@@ -4,6 +4,8 @@ import processing.video.*;
 int numPixels;
 int[] previousFrame;
 Capture video;
+int diffsum = 0;
+PImage saveimg = createImage(640, 480, RGB);
 
 void setup() {
   size(640, 480);
@@ -11,6 +13,11 @@ void setup() {
   video.start(); 
   numPixels = video.width * video.height;
   previousFrame = new int[numPixels];
+  for (int x = 0; x < saveimg.width; x++) {
+    for (int y = 0; y < saveimg.height; y++) {
+      saveimg.set(x, y, 0);
+    }
+  }
   loadPixels();
 }
 
@@ -33,21 +40,39 @@ void captureEvent(Capture c) {
     movementSum += diffR + diffG + diffB;
     previousFrame[i] = currColor;
   }
-  println(movementSum);
   push(new Dframe(previousFrame, movementSum));
 }
 
-int cnt = 0;
 void draw() {
   image(video, 0, 0);
+  if (diffsum > thre) {
+    fill(255, 0, 0);
+    ellipse(100, 100, 100, 100);
+    if (queue.size() >= 10) {
+      saveframes();
+    }
+  }
 }
 
 ArrayBlockingQueue<Dframe> queue = new ArrayBlockingQueue<Dframe>(10);
 void push(Dframe frame) {
   if (queue.size() >= 10) {
-    queue.poll();
+    Dframe f = queue.poll();
+    diffsum -= f.diff;
   }
   queue.add(frame);
+  diffsum += frame.diff;
+}
+
+int cnt = 0;
+void saveframes() {
+  for (Dframe f : queue) {
+    for (int i = 0; i < saveimg.width * saveimg.height; i++) {
+      saveimg.pixels[i] = f.frame[i];
+    }
+    saveimg.updatePixels();
+    saveimg.save("/users/yuikita/desktop/imgs/" + cnt++ + ".png");
+  }
 }
 
 class Dframe {
@@ -59,5 +84,13 @@ class Dframe {
   int diff;
 }
 
-float framesdiff() {
-  for (int 
+int thre = 40000000;
+void keyPressed() {
+  if (key == 'a') {
+    thre += 5000000;
+  } else if (key == 'A') {
+    thre -= 5000000;
+  }
+  println(thre);
+}
+
