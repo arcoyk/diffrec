@@ -65,13 +65,18 @@ void push(Dframe frame) {
 }
 
 int cnt = 0;
+String prefix = "";
 void saveframes() {
   for (Dframe f : queue) {
     for (int i = 0; i < saveimg.width * saveimg.height; i++) {
       saveimg.pixels[i] = f.frame[i];
     }
     saveimg.updatePixels();
-    saveimg.save("/users/yuikita/desktop/imgs/" + cnt++ + ".png");
+    prefix = "";
+    for (int i = 0; i < (10 - cnt / 10); i++) {
+      prefix += "0";
+    }
+    saveimg.save("/users/yuikita/desktop/imgs/" + prefix + cnt++ + ".png");
   }
 }
 
