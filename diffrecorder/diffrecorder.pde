@@ -48,15 +48,16 @@ void draw() {
   if (diffsum > thre) {
     fill(255, 0, 0);
     ellipse(100, 100, 100, 100);
-    if (queue.size() >= 10) {
+    if (queue.size() >= rwindow) {
       saveframes();
     }
   }
 }
 
-ArrayBlockingQueue<Dframe> queue = new ArrayBlockingQueue<Dframe>(10);
+int rwindow = 30;
+ArrayBlockingQueue<Dframe> queue = new ArrayBlockingQueue<Dframe>(rwindow);
 void push(Dframe frame) {
-  if (queue.size() >= 10) {
+  if (queue.size() >= rwindow) {
     Dframe f = queue.poll();
     diffsum -= f.diff;
   }
@@ -65,18 +66,13 @@ void push(Dframe frame) {
 }
 
 int cnt = 0;
-String prefix = "";
 void saveframes() {
   for (Dframe f : queue) {
     for (int i = 0; i < saveimg.width * saveimg.height; i++) {
       saveimg.pixels[i] = f.frame[i];
     }
     saveimg.updatePixels();
-    prefix = "";
-    for (int i = 0; i < (10 - cnt / 10); i++) {
-      prefix += "0";
-    }
-    saveimg.save("/users/yuikita/desktop/imgs/" + prefix + cnt++ + ".png");
+    saveimg.save("/users/kitayui/Desktop/imgs/" + cnt++ + ".png");
   }
 }
 
